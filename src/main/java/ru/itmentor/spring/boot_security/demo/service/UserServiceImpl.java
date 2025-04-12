@@ -1,5 +1,10 @@
 package ru.itmentor.spring.boot_security.demo.service;
 
+import org.hibernate.Hibernate;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmentor.spring.boot_security.demo.dto.UserRequestDto;
@@ -13,26 +18,28 @@ import ru.itmentor.spring.boot_security.demo.repository.UserRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
+                           UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponseDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -46,7 +53,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void addUser(UserRequestDto userRequestDto) {
         User user = userMapper.toUser(userRequestDto);
-        Set<Role> roles = new HashSet<>(roleRepository.findAllById(userRequestDto.getRoleIds()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Set<Role> roles = new HashSet<>(
+                roleRepository.findAllById(userRequestDto.getRoleIds()));
         user.setRoles(roles);
         userRepository.save(user);
     }
@@ -60,12 +69,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUser(UserRequestDto userRequestDto) {
-        User existingUser = userRepository.findById(userRequestDto.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        userMapper.updateUserFromDto(userRequestDto, existingUser);
-        Set<Role> roles = new HashSet<>(roleRepository.findAllById(userRequestDto.getRoleIds()));
-        existingUser.setRoles(roles);
-        userRepository.save(existingUser);
+        User user = userRepository.getReferenceById(userRequestDto.getId());
+        userMapper.updateUserFromDto(userRequestDto, user);
+        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        Set<Role> roles = new HashSet<>(
+                roleRepository.findAllById(userRequestDto.getRoleIds()));
+        user.setRoles(roles);
+        userRepository.save(user);
     }
 
     @Override
@@ -73,5 +83,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userMapper.toUserResponseDto(user);
+    }
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        Hibernate.initialize(user.getRoles());
+        return user;
     }
 }

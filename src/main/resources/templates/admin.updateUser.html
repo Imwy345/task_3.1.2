@@ -31,8 +31,8 @@
 </head>
 <body>
 <h1>Edit user</h1>
-<form action="#" method="POST" th:action="@{'/update/' + ${user.id}}" th:object="${user}">
-    <input type="hidden" name="_method" value="patch" />
+<form action="#" method="POST" th:action="@{/admin/edit}" th:object="${user}">
+    <input type="hidden" name="_method" value="PUT" />
     <table>
         <tr>
             <td>
@@ -67,7 +67,31 @@
                 <input type="text" th:field="*{email}" id="email" required/>
             </td>
         </tr>
+        <tr>
+            <td>
+                <label for="username">Username (login)</label>
+                <input type="text" th:field="*{username}" id="username"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="password">Password </label>
+                <input type="password" th:field="*{password}" id="password"/>
+            </td>
+        </tr>
         <br>
+        <div>
+            <label>Roles:</label>
+            <div th:each="role : ${allRoles}">
+                <input type="checkbox"
+                       th:value="${role.id}"
+                       th:field="*{roleIds}"
+                       th:checked="${#sets.contains(user.roleIds, role.id)}"
+                       th:id="${'role_' + role.id}">
+                <label th:for="${'role_' + role.id}" th:text="${role.name}"></label>
+            </div>
+        </div>
+
         <tr>
             <td>
                 <input type="submit" class="buttonUpdate" value="Update user"/>

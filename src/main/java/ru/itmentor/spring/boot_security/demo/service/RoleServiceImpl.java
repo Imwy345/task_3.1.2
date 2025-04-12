@@ -19,19 +19,4 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.findAll();
     }
 
-    @Override
-    public Role getRoleById(Long id) {
-        return roleRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public void saveRole(Role role) {
-        roleRepository.save(role);
-    }
-
-    @Override
-    public Role findRoleByName(String name) {
-        return roleRepository.findRoleByName(name)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-    }
 }

@@ -31,7 +31,7 @@
 </head>
 <body>
 <h1>Add user</h1>
-<form action="#" method="POST" th:action="@{/new}" th:object="${user}">
+<form action="#" method="POST" th:action="@{/admin/new}" th:object="${user}">
     <table>
         <tr>
             <td>
@@ -61,6 +61,30 @@
             </td>
         </tr>
         <br>
+        <tr>
+            <td>
+                <label for="username">Username (login)</label>
+                <input type="text" th:field="*{username}" id="username" required/>
+            </td>
+        </tr>
+        <br>
+        <tr>
+            <td>
+                <label for="password">Password</label>
+                <input type="password" th:field="*{password}" id="password" required/>
+            </td>
+        </tr>
+        <br>
+        <div>
+            <label>Roles:</label>
+            <div th:each="role : ${allRoles}">
+                <input type="checkbox"
+                       th:value="${role.id}"
+                       th:field="*{roleIds}"
+                       th:id="${'role_' + role.id}">
+                <label th:for="${'role_' + role.id}" th:text="${role.name}"></label>
+            </div>
+        </div>
         <tr>
             <td>
                 <input type="submit" class="buttonAdd" value="Add user"/>

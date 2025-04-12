@@ -1,10 +1,19 @@
 package ru.itmentor.spring.boot_security.demo.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Objects;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
@@ -15,7 +24,6 @@ public class Role implements GrantedAuthority {
     @Column(name = "name", unique = true)
     private String name;
 
-    // Конструкторы
     public Role() {
     }
 
@@ -24,30 +32,11 @@ public class Role implements GrantedAuthority {
         this.name = name;
     }
 
-    // Геттеры и сеттеры
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // Метод GrantedAuthority
     @Override
     public String getAuthority() {
         return name;
     }
 
-    // equals, hashCode, toString
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

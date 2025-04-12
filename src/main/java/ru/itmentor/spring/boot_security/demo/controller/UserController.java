@@ -1,74 +1,29 @@
 package ru.itmentor.spring.boot_security.demo.controller;
 
-import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import ru.itmentor.spring.boot_security.demo.model.User;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import ru.itmentor.spring.boot_security.demo.service.UserService;
 
-@Controller
-public class UserController {
+import java.security.Principal;
 
-//    private final UserService userService;
-//
-//    public UserController(UserService userService) {
-//        this.userService = userService;
-//    }
-//
-//    @GetMapping("/")
-//    public String allUsers(Model model) {
-//        model.addAttribute("users", userService.getAllUsers());
-//        return "users";
-//    }
-//
-//    @GetMapping("/{id}")
-//    public String getUser(@PathVariable("id") int id, Model model) {
-//        model.addAttribute("user", userService.getUserById(id));
-//        return "user";
-//    }
-//
-//    @GetMapping("/new")
-//    public String addUser(User user) {
-//        return "newUser";
-//    }
-//
-//    @PostMapping("/new")
-//    public String add(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
-//        if (bindingResult.hasErrors()) {
-//            return "newUser";
-//        } else {
-//            userService.addUser(user);
-//            return "redirect:/";
-//        }
-//    }
-//
-//    @GetMapping("/{id}/update")
-//    public String updateUser(@PathVariable("id") int id, Model model) {
-//        model.addAttribute("user", userService.getUserById(id));
-//        return "updateUser";
-//    }
-//
-//    @PostMapping("/update/{id}")
-//    public String update(@PathVariable("id") long id, @Valid User user, BindingResult bindingResult) {
-//        if (bindingResult.hasErrors()) {
-//            return "updateUser";
-//        } else {
-//            user.setId(id);
-//            userService.updateUser(user);
-//            return "redirect:/";
-//        }
-//    }
-//
-//    @PostMapping("/delete/{id}")
-//    public String delete(@PathVariable("id") int id) {
-//        userService.removeUser(id);
-//        return "redirect:/";
-//    }
-//
-//    @GetMapping("/favicon.ico")
-//    public void favicon() {
-//        // favicon.ico
-//    }
+@Controller
+@RequestMapping("/user")
+public class UserController {
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping
+    public String getUserPage(Principal principal, Model model) {
+        String username = principal.getName();
+        model.addAttribute("user",
+                userService.findByUsername(username));
+        return "user.selfInfo";
+    }
 }
