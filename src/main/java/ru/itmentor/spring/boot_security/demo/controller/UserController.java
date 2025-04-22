@@ -1,15 +1,17 @@
 package ru.itmentor.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import ru.itmentor.spring.boot_security.demo.dto.UserResponseDto;
 import ru.itmentor.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
 
-@Controller
+@RestController
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
@@ -20,10 +22,8 @@ public class UserController {
     }
 
     @GetMapping
-    public String getUserPage(Principal principal, Model model) {
+    public ResponseEntity<UserResponseDto> getUserPage(Principal principal, Model model) {
         String username = principal.getName();
-        model.addAttribute("user",
-                userService.findByUsername(username));
-        return "user.selfInfo";
+        return ResponseEntity.ok(userService.findByUsername(username));
     }
 }
